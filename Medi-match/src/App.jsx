@@ -8,15 +8,31 @@ function App() {
   const [toast, setToast] = useState(false)
   const fileRef = useRef()
 
-  const handleFile = (e) => {
+  const handleFile =async(e) => {
+
     if (e.target.files[0]) setFileName(e.target.files[0].name)
   }
 
-  const handleForward = () => {
+  const handleForward =async () => {
     if (!diseaseName.trim() || !description.trim()) {
       alert('Please fill in both disease name and patient description.')
+      
       return
     }
+    console.log("hi")
+    const response = await fetch(
+      "http://127.0.0.1:8000/frwdMsg",
+    {
+      headers : {"Content-Type" : "application/json"},
+      method : "POST",
+      body : JSON.stringify({
+        "title" : diseaseName,
+        "description" : description
+      })
+    }
+    )
+    const data = await response.json();
+    console.log(data["message"])
     setToast(true)
     setTimeout(() => setToast(false), 3000)
   }

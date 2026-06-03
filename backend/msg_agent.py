@@ -1,13 +1,16 @@
-from langgraph.graph import StateGraph,START,END
-from langgraph.graph.message import Annotated,TypedDict,add_messages
-from langgraph.prebuilt import ToolNode
-from langchain.messages import HumanMessage,SystemMessage
-from llm_ import llm,memory
+from pydantic import BaseModel
+from fastapi import FastAPI
+from langchain_core.messages import SystemMessage, HumanMessage
+from llm_ import llm
 
-def forward_msg_generator(state : memory):
-   messages = [
-      SystemMessage(
-        content=f"""
+app = FastAPI()
+
+
+
+def forward_msg_generator(title: str, description: str):
+    messages = [
+        SystemMessage(
+            content="""
 You are an assistant helping healthcare professionals.
 
 Generate a brief clinical summary for a doctor based on the provided medical condition and keywords.
@@ -22,9 +25,16 @@ Requirements:
 - Do not add information that is not medically associated with the condition.
 - Return only the summary.
 """
-    ),
-    HumanMessage(
-       content=f"""Condition: {title},  Keywords: {keywords}"""
-    )
-    
-]
+        ),
+        HumanMessage(
+            content=f"""
+Condition: {title}
+Keywords: {description}
+"""
+        )
+    ]
+
+    response = llm.invoke(messages) 
+    return response.content
+
+
